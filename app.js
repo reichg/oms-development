@@ -17,19 +17,29 @@ app.get("/", (req, res) => {
   });
 });
 
-app.get("/:issues", (req, res) => {
-  const { issues } = req.params;
+app.get("/:issues", async (req, res) => {
+  try {
+    const { issues } = req.params;
 
-  OutputGenerator.initiateProcessing(issues);
+    await OutputGenerator.initiateProcessing(issues);
 
-  res.status(200).json({
-    status: "success",
-    message: `Issues received and procesing took ${
-      Date.now() - req.requestRecievedAt
-    } ms`,
-    links: OutputGenerator.links,
-    output: OutputGenerator.outputText,
-  });
+    res.status(200).json({
+      status: "success",
+      message: `Issues received and procesing took ${
+        Date.now() - req.requestRecievedAt
+      } ms`,
+      links: OutputGenerator.links,
+      output: OutputGenerator.outputText,
+    });
+  } catch (e) {
+    res.status(200).json({
+      type: "failed",
+      message: `Issues received and procesing took ${
+        Date.now() - req.requestRecievedAt
+      } ms`,
+      output: `${e.message}`,
+    });
+  }
 });
 
 app.listen(port, () => console.log(`Listening to port: ${port}`));
