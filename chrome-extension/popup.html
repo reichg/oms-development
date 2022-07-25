@@ -4,14 +4,19 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OMS Chrome Extension</title>
-    <script defer src="background.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <title>Open Map Service</title>
   </head>
   <body>
-    <div>
-      <label for="input">Input: </label>
-      <input id="input" type="textarea" />
-      <button type="button">Fetch</button>
+    <div id="input-holder">
+      <textarea id="input" placeholder="Start inputting..."></textarea>
+      <button id="submit" type="button">Get Results</button>
     </div>
+
+    <hr />
+
+    <div id="output-holder"></div>
+
+    <script src="popup.js"></script>
   </body>
 </html>

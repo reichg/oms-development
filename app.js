@@ -10,6 +10,11 @@ app.use((req, _, next) => {
   next();
 });
 
+app.use((_, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  next();
+});
+
 app.get("/", (req, res) => {
   res.status(200).json({
     status: "success",

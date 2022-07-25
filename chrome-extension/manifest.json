@@ -1,10 +1,14 @@
 {
   "name": "Open Map Service",
-  "description": "An chrome extension to input the features for OMS review",
+  "description": "A chrome extension to input the issues for OMS review",
   "version": "1.0.0",
+  "manifest_version": 3,
   "background": {
     "service_worker": "background.js"
   },
+  "permissions": [
+    "storage"
+  ],
   "action": {
     "default_popup": "popup.html"
   }
