@@ -7,12 +7,30 @@ const { countryName } = require("./config");
 class OutputGenerator {
   static inputIssues = null;
   static links = null;
-  static outputText = null;
+  static outputText = [];
 
   static async initiateProcessing(input) {
     OutputGenerator.inputIssues = input.split(",");
     OutputGenerator.links = OutputGenerator.generateLinks();
-    await OutputGenerator.generateOutputText();
+
+    if (OutputGenerator.links.length === 1) {
+      await OutputGenerator.generateOutputText(OutputGenerator.links);
+    } else {
+      const totalength = OutputGenerator.links.length;
+      let currentLinks = [];
+      let i = 0;
+      while (i <= totalength) {
+        const startIndex = i;
+        const endIndex = i + 10 > totalength ? totalength - 1 : i + 10;
+        if (startIndex === endIndex) break;
+        currentLinks = OutputGenerator.links.slice(startIndex, endIndex);
+        console.log(`Started processing from ${startIndex} to ${endIndex}`);
+        await OutputGenerator.generateOutputText(currentLinks);
+        console.log(`Done processing from ${startIndex} to ${endIndex}`);
+        i = i + 10 > totalength ? totalength - 1 : i + 10;
+        console.log(i);
+      }
+    }
   }
 
   static generateLinks() {
@@ -33,15 +51,13 @@ class OutputGenerator {
     return null;
   }
 
-  static async generateOutputText() {
+  static async generateOutputText(currentLinks) {
     try {
       const data = await Promise.all(
-        OutputGenerator.links.map(
-          async (item) => await OutputGenerator.processOutput(item)
-        )
+        currentLinks.map((item) => OutputGenerator.processOutput(item))
       );
 
-      OutputGenerator.outputText = data;
+      OutputGenerator.outputText.push(...data);
     } catch (e) {
       throw new Error("Unable to process features");
     }
@@ -338,7 +354,12 @@ class OutputGenerator {
       }
 
       // Check for tag changes
-      if (previousVersion.tags.length === latestVersion.tags.length) {
+      if (
+        previousVersion.tags === undefined ||
+        latestVersion.tags === undefined
+      ) {
+        tagsChanged = true;
+      } else if (previousVersion.tags.length === latestVersion.tags.length) {
         const prevKeys = Object.keys(previousVersion.tags).sort();
         const prevValues = Object.values(previousVersion.tags).sort();
         const latestKeys = Object.keys(latestVersion.tags).sort();
@@ -375,7 +396,10 @@ class OutputGenerator {
         return `${output.type}/${output.id},${country} is of v${output.version}, ${tagAndMemberChanges}, type is multipolygon`;
       }
 
-      const scrapperOutput = await scrapper(+output.id);
+      const scrapperOutput = await Promise.race([
+        scrapper(+output.id),
+        new Promise((resolve) => setTimeout(() => resolve(-1), 1000 * 30)),
+      ]);
 
       if (scrapperOutput === 1) {
         return `${output.type}/${output.id},${country} is of v${output.version}, ${tagAndMemberChanges}, status is good`;
