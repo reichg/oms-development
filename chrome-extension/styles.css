@@ -66,6 +66,25 @@ body {
   animation: 0.2s ease-in-out bump;
 }
 
+#input-fields {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  row-gap: 1rem;
+}
+
+#input-text {
+  grid-column: 1/-1;
+}
+
+#input-config {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
 @keyframes bump {
   from {
     transform: scale(0.9);
@@ -90,6 +109,10 @@ hr {
   border-radius: 1rem;
 }
 
+#output-holder {
+  padding: 1rem 0;
+}
+
 .output {
   width: 100%;
   display: flex;
@@ -97,10 +120,15 @@ hr {
   align-items: center;
   justify-content: center;
   gap: 1.5rem;
+  padding: 0.5rem 0;
+}
+
+.results {
+  padding: 0 1rem;
 }
 
 .output-item {
-  padding: 0.5rem;
+  padding: 0.25rem;
   font-size: 1.6rem;
 }
 

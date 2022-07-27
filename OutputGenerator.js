@@ -2,35 +2,58 @@ const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
 const { scrapper, distance } = require("./utils");
-const { countryName } = require("./config");
 
 class OutputGenerator {
   static inputIssues = null;
   static links = null;
   static outputText = [];
+  static config = {
+    countryName: false,
+  };
 
   static async initiateProcessing(input) {
-    OutputGenerator.inputIssues = input.split(",");
+    const [flags, ...issues] = input.split(",");
+    OutputGenerator.configureFlags(flags);
+    OutputGenerator.inputIssues = issues;
     OutputGenerator.links = OutputGenerator.generateLinks();
+    OutputGenerator.outputText = [];
 
     if (OutputGenerator.links.length === 1) {
       await OutputGenerator.generateOutputText(OutputGenerator.links);
     } else {
       const totalength = OutputGenerator.links.length;
       let currentLinks = [];
+      const split = 5;
       let i = 0;
       while (i <= totalength) {
         const startIndex = i;
-        const endIndex = i + 10 > totalength ? totalength - 1 : i + 10;
+        const endIndex = i + split > totalength ? totalength : i + split;
         if (startIndex === endIndex) break;
         currentLinks = OutputGenerator.links.slice(startIndex, endIndex);
-        console.log(`Started processing from ${startIndex} to ${endIndex}`);
+        // console.log(`Started processing from ${startIndex} to ${endIndex}`);
         await OutputGenerator.generateOutputText(currentLinks);
-        console.log(`Done processing from ${startIndex} to ${endIndex}`);
-        i = i + 10 > totalength ? totalength - 1 : i + 10;
-        console.log(i);
+        // console.log(`Done processing from ${startIndex} to ${endIndex}`);
+        i = i + split > totalength ? totalength : i + split;
       }
     }
+
+    console.log(`Done Processing at ${new Date(Date.now())}`);
+    OutputGenerator.resetState();
+  }
+
+  static configureFlags(inputFlags) {
+    const flags = inputFlags.split("");
+    flags.forEach((flag) => {
+      if (flag === "c") OutputGenerator.config.countryName = true;
+    });
+  }
+
+  static resetState() {
+    OutputGenerator.inputIssues = null;
+    OutputGenerator.links = null;
+    OutputGenerator.config = {
+      countryName: false,
+    };
   }
 
   static generateLinks() {
@@ -85,7 +108,7 @@ class OutputGenerator {
   }
 
   static async getCountry(obj) {
-    if (!countryName) return "";
+    if (!OutputGenerator.config.countryName) return "";
 
     if (obj.lat === -1 && obj.lon === -1) {
       return ` Failed to get country name,`;
@@ -124,7 +147,7 @@ class OutputGenerator {
     // For node and way
     if (output.type === "node") {
       let country = "";
-      if (countryName) {
+      if (OutputGenerator.config.countryName) {
         country = await OutputGenerator.getCountry({
           lat: output.lat,
           lon: output.lon,
@@ -135,7 +158,7 @@ class OutputGenerator {
 
     if (output.type === "way") {
       let country = "";
-      if (countryName) {
+      if (OutputGenerator.config.countryName) {
         const coordinates = await OutputGenerator.getCoordinates([
           `node/${output.nodes[0]}`,
         ]);
@@ -147,7 +170,7 @@ class OutputGenerator {
     // For relation
     if (output.type === "relation") {
       let country = "";
-      if (countryName) {
+      if (OutputGenerator.config.countryName) {
         const members = output.members.map(
           (item) => `${item.type}/${item.ref}`
         );
@@ -312,7 +335,7 @@ class OutputGenerator {
     // For relation
     if (output.type === "relation") {
       let country = "";
-      if (countryName) {
+      if (OutputGenerator.config.countryName) {
         const members = output.members.map(
           (item) => `${item.type}/${item.ref}`
         );
@@ -415,7 +438,7 @@ class OutputGenerator {
     // for node
     if (output.type === "node") {
       let country = "";
-      if (countryName) {
+      if (OutputGenerator.config.countryName) {
         country = await OutputGenerator.getCountry({
           lat: output.lat,
           lon: output.lon,
@@ -483,7 +506,7 @@ class OutputGenerator {
     // For way
     if (output.type === "way") {
       let country = "";
-      if (countryName) {
+      if (OutputGenerator.config.countryName) {
         const coordinates = await OutputGenerator.getCoordinates([
           `node/${output.nodes[0]}`,
         ]);
