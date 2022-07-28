@@ -23,17 +23,17 @@ class OutputGenerator {
     } else {
       const totalength = OutputGenerator.links.length;
       let currentLinks = [];
-      const split = 5;
+      const SPLIT = 3;
       let i = 0;
       while (i <= totalength) {
         const startIndex = i;
-        const endIndex = i + split > totalength ? totalength : i + split;
+        const endIndex = i + SPLIT > totalength ? totalength : i + SPLIT;
         if (startIndex === endIndex) break;
         currentLinks = OutputGenerator.links.slice(startIndex, endIndex);
         // console.log(`Started processing from ${startIndex} to ${endIndex}`);
         await OutputGenerator.generateOutputText(currentLinks);
         // console.log(`Done processing from ${startIndex} to ${endIndex}`);
-        i = i + split > totalength ? totalength : i + split;
+        i = i + SPLIT > totalength ? totalength : i + SPLIT;
       }
     }
 

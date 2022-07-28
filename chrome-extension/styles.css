@@ -68,7 +68,7 @@ body {
 
 #input-fields {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   row-gap: 1rem;
 }
 
@@ -83,6 +83,7 @@ body {
   gap: 0.5rem;
   font-size: 1.2rem;
   font-weight: bold;
+  grid-column: 1/-1;
 }
 
 @keyframes bump {
