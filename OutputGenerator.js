@@ -30,9 +30,9 @@ class OutputGenerator {
         const endIndex = i + SPLIT > totalength ? totalength : i + SPLIT;
         if (startIndex === endIndex) break;
         currentLinks = OutputGenerator.links.slice(startIndex, endIndex);
-        // console.log(`Started processing from ${startIndex} to ${endIndex}`);
+        console.log(`Started processing from ${startIndex} to ${endIndex}`);
         await OutputGenerator.generateOutputText(currentLinks);
-        // console.log(`Done processing from ${startIndex} to ${endIndex}`);
+        console.log(`Done processing from ${startIndex} to ${endIndex}`);
         i = i + SPLIT > totalength ? totalength : i + SPLIT;
       }
     }
