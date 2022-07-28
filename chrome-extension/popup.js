@@ -39,7 +39,8 @@ submitBtn.addEventListener("click", async (e) => {
 
     console.log(issues);
 
-    const requestUrl = `http://localhost:3000/`;
+    const requestUrl = `https://oms-review-backend.herokuapp.com/`;
+    // const requestUrl = `http://localhost:3000/`;
     const response = await fetch(requestUrl, {
       method: "POST",
       headers: { "Content-Type": "text/plain" },
