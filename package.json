@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "nodemon app.js",
-    "start:prod": "node app.js"
+    "start:prod": "node app.js",
+    "start:heroku": "node app.js"
   },
   "repository": {
     "type": "git",
