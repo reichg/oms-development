@@ -21,8 +21,8 @@ app.get("/", (req, res) => {
 app.post("/", async (req, res, next) => {
   try {
     const processStartTime = Date.now();
-    const { data } = JSON.parse(JSON.stringify(req.body));
-    await OutputGenerator.initiateProcessing(data);
+    const { issues } = JSON.parse(JSON.stringify(req.body));
+    await OutputGenerator.initiateProcessing(issues);
     const timeTaken = Math.floor((Date.now() - processStartTime) / 1000);
 
     res.status(200).json({
