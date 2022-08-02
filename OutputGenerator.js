@@ -128,7 +128,8 @@ class OutputGenerator {
     if (node.length > 0) {
       node = node[0];
     } else {
-      const way = members[0];
+      let way = members.filter((item) => item.split("/")[0] === "way");
+      way = way[0];
       const url = `https://api.openstreetmap.org/api/0.6/${way}.json`;
       const response = await fetch(url);
       if (response.status !== 200) return { lat: -1, lon: -1 };
@@ -335,6 +336,7 @@ class OutputGenerator {
     // For relation
     if (output.type === "relation") {
       let country = "";
+
       if (OutputGenerator.config.countryName) {
         const members = output.members.map(
           (item) => `${item.type}/${item.ref}`
@@ -544,6 +546,7 @@ class OutputGenerator {
       // Check for tag changes
       if (
         previousVersion.tags !== undefined &&
+        latestVersion.tags !== undefined &&
         previousVersion.tags.length === latestVersion.tags.length
       ) {
         const prevKeys = Object.keys(previousVersion.tags).sort();
