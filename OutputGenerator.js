@@ -12,33 +12,36 @@ class OutputGenerator {
   };
 
   static async initiateProcessing(input) {
-    const [flags, ...issues] = input.split(",");
-    OutputGenerator.configureFlags(flags);
-    OutputGenerator.inputIssues = issues;
-    OutputGenerator.links = OutputGenerator.generateLinks();
-    OutputGenerator.outputText = [];
+    try {
+      const [flags, ...issues] = input.split(",");
+      OutputGenerator.configureFlags(flags);
+      OutputGenerator.inputIssues = issues;
+      OutputGenerator.links = OutputGenerator.generateLinks();
+      OutputGenerator.outputText = [];
 
-    if (OutputGenerator.links.length === 1) {
-      await OutputGenerator.generateOutputText(OutputGenerator.links);
-    } else {
-      const totalength = OutputGenerator.links.length;
-      let currentLinks = [];
-      const SPLIT = 3;
-      let i = 0;
-      while (i <= totalength) {
-        const startIndex = i;
-        const endIndex = i + SPLIT > totalength ? totalength : i + SPLIT;
-        if (startIndex === endIndex) break;
-        currentLinks = OutputGenerator.links.slice(startIndex, endIndex);
-        console.log(`Started processing from ${startIndex} to ${endIndex}`);
-        await OutputGenerator.generateOutputText(currentLinks);
-        console.log(`Done processing from ${startIndex} to ${endIndex}`);
-        i = i + SPLIT > totalength ? totalength : i + SPLIT;
+      if (OutputGenerator.links.length === 1) {
+        await OutputGenerator.generateOutputText(OutputGenerator.links);
+      } else {
+        const totalength = OutputGenerator.links.length;
+        let currentLinks = [];
+        const SPLIT = 3;
+        let i = 0;
+        while (i <= totalength) {
+          const startIndex = i;
+          const endIndex = i + SPLIT > totalength ? totalength : i + SPLIT;
+          if (startIndex === endIndex) break;
+          currentLinks = OutputGenerator.links.slice(startIndex, endIndex);
+          // console.log(`Started processing from ${startIndex} to ${endIndex}`);
+          await OutputGenerator.generateOutputText(currentLinks);
+          // console.log(`Done processing from ${startIndex} to ${endIndex}`);
+          i = i + SPLIT > totalength ? totalength : i + SPLIT;
+        }
       }
-    }
 
-    console.log(`Done Processing at ${new Date(Date.now())}`);
-    OutputGenerator.resetState();
+      // console.log(`Done Processing at ${new Date(Date.now())}`);
+    } finally {
+      OutputGenerator.resetState();
+    }
   }
 
   static configureFlags(inputFlags) {
@@ -93,7 +96,9 @@ class OutputGenerator {
 
     try {
       const response = await fetch(apiUrl);
-      if (response.status === 410) return "Feature is deleted";
+      if (response.status === 410) return `${type}/${id}, Feature is deleted`;
+      if (response.status === 509) return `${type}/${id}, Huge data to analyse`;
+      if (response.status !== 200) return `${type}/${id}, Unable to analyse`;
       const data = await response.json();
       const output = data.elements[0];
       return await OutputGenerator.generateOutputFinalText(output);
@@ -423,7 +428,7 @@ class OutputGenerator {
 
       const scrapperOutput = await Promise.race([
         scrapper(+output.id),
-        new Promise((resolve) => setTimeout(() => resolve(-1), 1000 * 30)),
+        new Promise((resolve) => setTimeout(() => resolve(-1), 1000 * 20)),
       ]);
 
       if (scrapperOutput === 1) {
@@ -499,7 +504,7 @@ class OutputGenerator {
         tagsChanged !== null &&
         duplicateStatus !== ""
       ) {
-        return `${output.type}/${output.id},${country}, is of v${itemsArr.length}, [place: ${placeType}] moved for ${distanceCalc}m and ${tagsChanged}${duplicateStatus}`;
+        return `${output.type}/${output.id},${country} is of v${itemsArr.length}, [place: ${placeType}] moved for ${distanceCalc}m and ${tagsChanged}${duplicateStatus}`;
       }
 
       return `${output.type}/${output.id},${country} is of v${itemsArr.length}, need to investigate`;
