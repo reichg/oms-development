@@ -432,7 +432,7 @@ class OutputGenerator {
 
       const scrapperOutput = await Promise.race([
         scrapper(+output.id),
-        new Promise((resolve) => setTimeout(() => resolve(-1), 1000 * 20)),
+        new Promise((resolve) => setTimeout(() => resolve(-1), 1000 * 10)),
       ]);
 
       if (scrapperOutput === 1) {
