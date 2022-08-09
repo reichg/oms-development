@@ -350,80 +350,84 @@ class OutputGenerator {
         country = await OutputGenerator.getCountry(coordinates);
       }
 
-      const url = `https://api.openstreetmap.org/api/0.6/${
-        output.type
-      }/${+output.id}/history.json`;
-
-      const history = await fetch(url);
-      const response = await history.json();
-
-      const previousVersion = response.elements[response.elements.length - 2];
-      const latestVersion = response.elements[response.elements.length - 1];
-
       let [membersChanged, tagsChanged] = [false, false];
-
-      // Check for members changes
-      if (previousVersion.members.length === latestVersion.members.length) {
-        const prevMembers = previousVersion.members;
-        const latestMembers = latestVersion.members;
-
-        const lengthToCheck = prevMembers.length;
-
-        for (let i = 0; i < lengthToCheck; i++) {
-          if (
-            prevMembers[i].type !== latestMembers[i].type ||
-            prevMembers[i].ref !== latestMembers[i].ref ||
-            prevMembers[i].role !== latestMembers[i].role
-          ) {
-            membersChanged = true;
-            break;
-          }
-        }
-      } else {
-        membersChanged = true;
-      }
-
-      // Check for tag changes
-      if (
-        previousVersion.tags === undefined ||
-        latestVersion.tags === undefined
-      ) {
-        tagsChanged = true;
-      } else if (previousVersion.tags.length === latestVersion.tags.length) {
-        const prevKeys = Object.keys(previousVersion.tags).sort();
-        const prevValues = Object.values(previousVersion.tags).sort();
-        const latestKeys = Object.keys(latestVersion.tags).sort();
-        const latestValues = Object.values(latestVersion.tags).sort();
-
-        const lengthToCheck = prevKeys.length;
-
-        for (let i = 0; i < lengthToCheck; i++) {
-          if (
-            prevKeys[i] !== latestKeys[i] ||
-            prevValues[i] !== latestValues[i]
-          ) {
-            tagsChanged = true;
-            break;
-          }
-        }
-      } else {
-        tagsChanged = true;
-      }
-
       let tagAndMemberChanges = ``;
 
-      if (membersChanged && tagsChanged) {
-        tagAndMemberChanges = "both tags & members are changed";
-      } else if (membersChanged) {
-        tagAndMemberChanges = "only members changed";
-      } else if (tagsChanged) {
-        tagAndMemberChanges = "only tags changed";
+      if (output.version >= 200) {
+        membersChanged = "";
+        tagsChanged = "";
       } else {
-        tagAndMemberChanges = "error checking tags & members changes";
+        const url = `https://api.openstreetmap.org/api/0.6/${
+          output.type
+        }/${+output.id}/history.json`;
+
+        const history = await fetch(url);
+        const response = await history.json();
+
+        const previousVersion = response.elements[response.elements.length - 2];
+        const latestVersion = response.elements[response.elements.length - 1];
+
+        // Check for members changes
+        if (previousVersion.members.length === latestVersion.members.length) {
+          const prevMembers = previousVersion.members;
+          const latestMembers = latestVersion.members;
+
+          const lengthToCheck = prevMembers.length;
+
+          for (let i = 0; i < lengthToCheck; i++) {
+            if (
+              prevMembers[i].type !== latestMembers[i].type ||
+              prevMembers[i].ref !== latestMembers[i].ref ||
+              prevMembers[i].role !== latestMembers[i].role
+            ) {
+              membersChanged = true;
+              break;
+            }
+          }
+        } else {
+          membersChanged = true;
+        }
+
+        // Check for tag changes
+        if (
+          previousVersion.tags === undefined ||
+          latestVersion.tags === undefined
+        ) {
+          tagsChanged = true;
+        } else if (previousVersion.tags.length === latestVersion.tags.length) {
+          const prevKeys = Object.keys(previousVersion.tags).sort();
+          const prevValues = Object.values(previousVersion.tags).sort();
+          const latestKeys = Object.keys(latestVersion.tags).sort();
+          const latestValues = Object.values(latestVersion.tags).sort();
+
+          const lengthToCheck = prevKeys.length;
+
+          for (let i = 0; i < lengthToCheck; i++) {
+            if (
+              prevKeys[i] !== latestKeys[i] ||
+              prevValues[i] !== latestValues[i]
+            ) {
+              tagsChanged = true;
+              break;
+            }
+          }
+        } else {
+          tagsChanged = true;
+        }
+
+        if (membersChanged && tagsChanged) {
+          tagAndMemberChanges = "both tags & members are changed, ";
+        } else if (membersChanged) {
+          tagAndMemberChanges = "only members changed, ";
+        } else if (tagsChanged) {
+          tagAndMemberChanges = "only tags changed, ";
+        } else {
+          tagAndMemberChanges = "error checking tags & members changes, ";
+        }
       }
 
       if (output.tags.type === "multipolygon") {
-        return `${output.type}/${output.id},${country} is of v${output.version}, ${tagAndMemberChanges}, type is multipolygon`;
+        return `${output.type}/${output.id},${country} is of v${output.version}, ${tagAndMemberChanges} type is multipolygon`;
       }
 
       const scrapperOutput = await Promise.race([
