@@ -123,6 +123,11 @@ class OutputGenerator {
     const response = await fetch(url);
     if (response.status !== 200) return ` Unable to read country name,`;
     const data = [await response.json()];
+
+    if (data[0].hasOwnProperty("error")) {
+      return ` Unable to read country name,`;
+    }
+
     if (data.length > 0) return ` ${data[0].address.country},`;
     return ` Failed to get country name,`;
   }
@@ -416,13 +421,13 @@ class OutputGenerator {
         }
 
         if (membersChanged && tagsChanged) {
-          tagAndMemberChanges = "both tags & members are changed, ";
+          tagAndMemberChanges = "both tags & members are changed,";
         } else if (membersChanged) {
-          tagAndMemberChanges = "only members changed, ";
+          tagAndMemberChanges = "only members changed,";
         } else if (tagsChanged) {
-          tagAndMemberChanges = "only tags changed, ";
+          tagAndMemberChanges = "only tags changed,";
         } else {
-          tagAndMemberChanges = "error checking tags & members changes, ";
+          tagAndMemberChanges = "error checking tags & members changes,";
         }
       }
 
@@ -436,11 +441,11 @@ class OutputGenerator {
       ]);
 
       if (scrapperOutput === 1) {
-        return `${output.type}/${output.id},${country} is of v${output.version}, ${tagAndMemberChanges}, status is good`;
+        return `${output.type}/${output.id},${country} is of v${output.version}, ${tagAndMemberChanges} status is good`;
       }
 
       if (scrapperOutput === 0) {
-        return `${output.type}/${output.id},${country} is of v${output.version}, ${tagAndMemberChanges}, status is bad`;
+        return `${output.type}/${output.id},${country} is of v${output.version}, ${tagAndMemberChanges}status is bad`;
       }
 
       return `${output.type}/${output.id},${country} Relation analyzer failed to respond`;
