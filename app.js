@@ -11,14 +11,14 @@ app.use((_, res, next) => {
   next();
 });
 
-app.get("/", (req, res) => {
+app.get("/", (_, res) => {
   res.status(200).json({
     status: "success",
     message: "Welcome to OMS Review",
   });
 });
 
-app.post("/", async (req, res, next) => {
+app.post("/", async (req, res) => {
   try {
     const processStartTime = Date.now();
     const { issues } = JSON.parse(JSON.stringify(req.body));
